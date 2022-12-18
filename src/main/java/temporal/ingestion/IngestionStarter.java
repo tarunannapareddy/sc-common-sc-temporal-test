@@ -1,14 +1,13 @@
-package test.test1;
+package temporal.ingestion;
 
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
+
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
 import io.temporal.serviceclient.WorkflowServiceStubs;
-import org.slf4j.LoggerFactory;
 import java.util.UUID;
+
 
 
 
@@ -16,16 +15,25 @@ public class IngestionStarter {
 
     public static final WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
     public static final WorkflowClient client = WorkflowClient.newInstance(service);
-    public static final String taskQueue = "c1TaskQueue";
+    public static final String taskQueue = "ingestionTaskQueue";
+    public static final String customerId = "675ac101f436854137421f340c66eb0db9e00c2d";
 
     public static void main(String[] args){
-        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        root.setLevel(Level.INFO);
-        String workFlowId = onboardNewCustomerWithClass();
-        signalPublishEventWithClass(workFlowId);
+        String workFlowId = onboardNewCustomerWithClass(customerId, UUID.randomUUID().toString());
+        System.out.println("submitted workflow"+ workFlowId);
+    }
 
-        //String workFlowId = onboardNewCustomer();
-        //signalPublishEvent(workFlowId);
+    private static String onboardNewCustomerWithClass(String customerId, String accountId) {
+        String workFlowId = customerId;
+        System.out.println("creating workflow with ID :" + workFlowId);
+        IngestionWorkflow workflow = client.newWorkflowStub(
+                IngestionWorkflow.class,
+                WorkflowOptions.newBuilder()
+                        .setWorkflowId(workFlowId)
+                        .setTaskQueue(taskQueue)
+                        .build());
+        WorkflowClient.start(workflow::ingest,customerId, accountId);
+        return workFlowId;
     }
 
     public static String createNewSchedule() {
@@ -43,24 +51,10 @@ public class IngestionStarter {
         );
 
         // start async, not blocking
-        WorkflowClient.start(workflow::ingest,"Account1");
+        WorkflowClient.start(workflow::ingest,"customerId", "Account1");
         return workFlowId;
     }
 
-    private static String onboardNewCustomerWithClass() {
-        String workFlowId = UUID.randomUUID().toString();
-        System.out.println("creating workflow with ID :" + workFlowId);
-        IngestionWorkflow workflow = client.newWorkflowStub(
-                IngestionWorkflow.class,
-                WorkflowOptions.newBuilder()
-                        .setWorkflowId(workFlowId)
-                        .setTaskQueue(taskQueue)
-                        .build());
-        WorkflowClient.start(workflow::ingest,"Account1");
-
-        System.out.println("submitted workflow");
-        return workFlowId;
-    }
 
     private static void signalPublishEventWithClass(String workflowId) {
         WorkflowServiceStubs service2 = WorkflowServiceStubs.newInstance();
@@ -68,10 +62,11 @@ public class IngestionStarter {
         IngestionWorkflow stub= client2.newWorkflowStub(IngestionWorkflow.class, workflowId);
         while (true) {
             try {
-                Thread.sleep(25000);
-                stub.setLogsPublished();
-                System.out.println("send signal");
+                Thread.sleep(1000);
+                stub.setNewDataPublished(true);
             } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (Exception e){
                 e.printStackTrace();
             }
         }

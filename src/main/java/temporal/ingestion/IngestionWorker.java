@@ -1,4 +1,4 @@
-package test.test1;
+package temporal.ingestion;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.serviceclient.WorkflowServiceStubs;
@@ -12,7 +12,7 @@ public class IngestionWorker {
 
     public static final WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
     public static final WorkflowClient client = WorkflowClient.newInstance(service);
-    public static final String taskQueue = "c1TaskQueue";
+    public static final String taskQueue = "ingestionTaskQueue";
 
     public static void main(String[] args) {
         Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);

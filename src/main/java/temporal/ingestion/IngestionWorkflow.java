@@ -1,6 +1,5 @@
-package test.test1;
+package temporal.ingestion;
 
-import io.temporal.workflow.QueryMethod;
 import io.temporal.workflow.SignalMethod;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
@@ -8,11 +7,9 @@ import io.temporal.workflow.WorkflowMethod;
 @WorkflowInterface
 public interface IngestionWorkflow {
     @WorkflowMethod
-    void ingest(String accountIds);
+    void ingest(String customerId, String accountId);
 
     @SignalMethod
-    void setLogsPublished();
+    void setNewDataPublished(boolean isNewDataPublished);
 
-    @QueryMethod
-    int getCount();
 }
