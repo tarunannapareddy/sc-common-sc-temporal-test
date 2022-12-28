@@ -25,15 +25,14 @@ public class IngestionWorker {
         Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         root.setLevel(Level.INFO);
         WorkerFactory workerFactory = WorkerFactory.newInstance(client);
-
-        registerCollectionWorkflow(workerFactory);
-        registerIngestionWorkflow(workerFactory);
+        Worker worker = workerFactory.newWorker(taskQueue);
+        registerCollectionWorkflow(worker);
+        registerIngestionWorkflow(worker);
 
         workerFactory.start();
     }
 
-    static void registerIngestionWorkflow(WorkerFactory workerFactory){
-        Worker worker = workerFactory.newWorker(taskQueue);
+    static void registerIngestionWorkflow(Worker worker){
         WorkflowImplementationOptions options =
                 WorkflowImplementationOptions.newBuilder()
                         .setDefaultActivityOptions(ActivityOptions.newBuilder()
@@ -44,8 +43,7 @@ public class IngestionWorker {
         worker.registerActivitiesImplementations(new IngestionActivityImpl());
     }
 
-    static void registerCollectionWorkflow(WorkerFactory workerFactory){
-        Worker worker = workerFactory.newWorker(taskQueue);
+    static void registerCollectionWorkflow(Worker worker){
         WorkflowImplementationOptions options =
                 WorkflowImplementationOptions.newBuilder()
                         .setDefaultActivityOptions(ActivityOptions.newBuilder()
