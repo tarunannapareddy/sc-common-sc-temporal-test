@@ -17,9 +17,7 @@ public class CollectionWorkflowImpl implements CollectionWorkflow{
     private Logger logger = Workflow.getLogger(this.getClass().getName());
 
     private CollectionActivities activityStub =
-            Workflow.newActivityStub(CollectionActivities.class, ActivityOptions.newBuilder()
-                    .setStartToCloseTimeout(Duration.ofHours(1))
-                    .build());
+            Workflow.newActivityStub(CollectionActivities.class);
 
     @Override
     public void collect(String customerId, String accountId) {
