@@ -19,7 +19,7 @@ public class IngestionWorker {
 
     public static final WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
     public static final WorkflowClient client = WorkflowClient.newInstance(service);
-    public static final String taskQueue = "ingestionTaskQueue";
+    public static final String taskQueue = "ingestionTaskQueue-1";
 
     public static void main(String[] args) {
         Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
@@ -36,7 +36,7 @@ public class IngestionWorker {
         WorkflowImplementationOptions options =
                 WorkflowImplementationOptions.newBuilder()
                         .setDefaultActivityOptions(ActivityOptions.newBuilder()
-                                .setRetryOptions(RetryOptions.newBuilder().setMaximumAttempts(10).build())
+                                .setRetryOptions(RetryOptions.newBuilder().setMaximumAttempts(1).build())
                                 .setScheduleToCloseTimeout(Duration.ofHours(1))
                                 .build()).build();
         worker.registerWorkflowImplementationTypes(options, IngestionWorkflowImpl.class);
@@ -47,7 +47,7 @@ public class IngestionWorker {
         WorkflowImplementationOptions options =
                 WorkflowImplementationOptions.newBuilder()
                         .setDefaultActivityOptions(ActivityOptions.newBuilder()
-                                .setRetryOptions(RetryOptions.newBuilder().setMaximumAttempts(12).build())
+                                .setRetryOptions(RetryOptions.newBuilder().setMaximumAttempts(1).build())
                                 .setScheduleToCloseTimeout(Duration.ofHours(1))
                                 .build()).build();
         worker.registerWorkflowImplementationTypes(options, CollectionWorkflowImpl.class);
